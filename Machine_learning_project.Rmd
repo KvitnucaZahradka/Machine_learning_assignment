@@ -1,0 +1,104 @@
+---
+title: "Machine_learning"
+author: "Martin Polacek"
+date: "25 Jul 2015"
+output: html_document
+---
+#INTRODUCTION
+
+#SETUP 
+We download the required data and load libraries:
+```{r, echo=T, cache=TRUE}
+download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv","./training.csv",method="curl")
+```
+
+```{r, echo=T, cache=TRUE}
+download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv","./testing.csv",method="curl")
+```
+
+```{r, echo=T, cache=TRUE}
+training<-read.csv("training.csv")
+```
+
+```{r, echo=T, cache=TRUE}
+test<-read.csv("testing.csv")
+```
+
+```{r, echo=F, cache=TRUE}
+library(caret)
+```
+
+Install packages for the parallel computation and the dplyr package for easier data handling:
+
+```{r, echo=F, cache=TRUE}
+library(doParallel)
+registerDoParallel(cores=2)
+```
+
+```{r, echo=F, cache=TRUE}
+library(dplyr)
+```
+
+#ANALYSIS 
+
+We clear the "training set". Brief look at the data reveals that there are many columns with NA values or columns used for a book keeping. We get rid of those first.
+
+```{r, echo=T, cache=TRUE}
+training <- subset(training, select = c("roll_dumbbell","pitch_dumbbell","yaw_dumbbell","roll_arm","pitch_arm","yaw_arm","total_accel_arm","roll_belt","pitch_belt","yaw_belt","total_accel_belt","accel_dumbbell_z","magnet_dumbbell_z","roll_forearm","pitch_forearm","yaw_forearm","accel_forearm_z","magnet_forearm_z","classe"))
+
+```
+
+We subdivide the "training" data into the two groups "train1", "train2" with the following percentages (respectivelly) "90%","10%". The "train1" set is used as a genuine training set. The "train2" determine the out of sample error, i.e. the probablility to misclassify the class.
+
+```{r, echo=T, cache=TRUE}
+sub1<-createDataPartition(y=training$classe,p=0.9,list=F)
+sub2<-createDataPartition(y=training$classe,p=0.1,list=F)
+train1<-training[sub1,]
+train2<-training[sub2,]
+```
+
+##TRAINING
+
+Since we are dealing with the classification problem, we can use either a simple "decision tree" or more sophisticated "random forest". We go for the "random forest".
+
+We compute the "random forest" for the "train1" data set:
+
+```{r, echo=T, cache=TRUE}
+set.seed(835)
+train_var <-train(classe~.,data=train1,method="rf",ntree=10)
+```
+
+the accuracy of "train_var" is arround "97%"
+
+```{r, echo=T, cache=TRUE}
+train_var
+```
+
+We save the trained model:
+
+```{r, echo=T, cache=TRUE}
+saveRDS(train_var, file="train_var.rds")
+```
+
+##TESTING on "sub2"
+
+The train_var has already done cross validations and the accuracy is "97%". We would like to test the results on the independent data set "train2". We can thus independently estimate the out of sample error.
+
+```{r, echo=T, cache=TRUE}
+res_sub2<-predict(train_var,train2)
+```
+
+```{r, echo=T, cache=TRUE}
+err = function(val, pred) {
+    sum(pred != val)/length(val)
+}
+out_of_sample_error = err(train2$classe,res_sub2)
+```
+
+The out of sample error is "out_of_sample_error = 0.0015"
+
+##REFERENCES
+
+[1] Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+ 
+
