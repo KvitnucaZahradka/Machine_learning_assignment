@@ -5,6 +5,7 @@ date: "25 Jul 2015"
 output: html_document
 ---
 #INTRODUCTION
+In this project we analyse the data from the webpage "http://groupware.les.inf.puc-rio.br/har", section "Weight Lifting Exercises Dataset" (for more info see also [1]). The dataset describes the quality of the exercise of 6 people. The goal of this project is to predict the manner in which they did the exercise.
 
 #SETUP 
 We download the required data and load libraries:
@@ -80,7 +81,7 @@ We save the trained model:
 saveRDS(train_var, file="train_var.rds")
 ```
 
-##TESTING on "sub2"
+##TESTING on "train2"
 
 The train_var has already done cross validations and the accuracy is "97%". We would like to test the results on the independent data set "train2". We can thus independently estimate the out of sample error.
 
