@@ -61,6 +61,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 <div id="introduction" class="section level1">
 <h1>INTRODUCTION</h1>
+<p>In this project we analyse the data from the webpage “<a href="http://groupware.les.inf.puc-rio.br/har">http://groupware.les.inf.puc-rio.br/har</a>”, section “Weight Lifting Exercises Dataset” (for more info see also [1]). The dataset describes the quality of the exercise of 6 people. The goal of this project is to predict the manner in which they did the exercise.</p>
 </div>
 <div id="setup" class="section level1">
 <h1>SETUP</h1>
@@ -125,8 +126,8 @@ train_var &lt;-train(classe~.,data=train1,method=&quot;rf&quot;,ntree=10)</code>
 <p>We save the trained model:</p>
 <pre class="r"><code>saveRDS(train_var, file=&quot;train_var.rds&quot;)</code></pre>
 </div>
-<div id="testing-on-sub2" class="section level2">
-<h2>TESTING on “sub2”</h2>
+<div id="testing-on-train2" class="section level2">
+<h2>TESTING on “train2”</h2>
 <p>The train_var has already done cross validations and the accuracy is “97%”. We would like to test the results on the independent data set “train2”. We can thus independently estimate the out of sample error.</p>
 <pre class="r"><code>res_sub2&lt;-predict(train_var,train2)</code></pre>
 <pre class="r"><code>err = function(val, pred) {
